@@ -1,7 +1,7 @@
 :root {
-  --primary-color: #0d47a1; /* Blu zaffiro scuro */
-  --secondary-color: #1976d2; /* Blu oceano */
-  --accent-color: #90caf9; /* Blu chiaro */
+  --primary-color: #0d47a1;
+  --secondary-color: #1976d2;
+  --accent-color: #90caf9;
   --background-color: #f5f5f5;
   --card-color: #ffffff;
   --text-color: #212121;
@@ -15,6 +15,13 @@
   margin: 0;
 }
 
+html, body {
+  height: 100%;
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+}
+
 body {
   font-family: 'Roboto', 'Segoe UI', sans-serif;
   background-color: var(--background-color);
@@ -25,11 +32,19 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  padding: 20px;
+  height: 100vh;
+  width: 100%;
+  padding: 0;
 }
 
 @keyframes running-light {
   0% { transform: translateX(-100%); }
   100% { transform: translateX(100%); }
+}
+
+/* Mobile layout */
+@media (max-width: 600px) {
+  .main-container {
+    align-items: flex-start;
+  }
 }

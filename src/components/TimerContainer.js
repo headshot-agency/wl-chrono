@@ -220,8 +220,68 @@ export default function TimerContainer() {
     activeTimerRef.current = 'work'
   }
 
+  // Aggiungiamo il rilevamento del dispositivo mobile
+  const [isMobile, setIsMobile] = useState(false)
+  
+  useEffect(() => {
+    const checkIfMobile = () => {
+      setIsMobile(window.innerWidth <= 600)
+    }
+    
+    checkIfMobile()
+    window.addEventListener('resize', checkIfMobile)
+    
+    return () => window.removeEventListener('resize', checkIfMobile)
+  }, [])
+
+
+  const resetAllData = () => {
+    // Ferma il timer se è in esecuzione
+    if (timerInterval.current) {
+      clearInterval(timerInterval.current)
+      timerInterval.current = null
+    }
+    
+    // Resetta tutti i valori
+    setIsRunning(false)
+    setWorkTime(0)
+    setOtherTime(0)
+    setActiveTimer('work')
+    activeTimerRef.current = 'work'
+    setTotalWorkTime(0)
+    setTotalOtherTime(0)
+    setSessions([])
+    
+    // Crea una nuova sessione
+    const newSessionId = Date.now().toString()
+    sessionId.current = newSessionId
+    const newSession = {
+      id: newSessionId,
+      start: getCurrentTimeString(),
+      workTime: 0,
+      otherTime: 0
+    }
+    setCurrentSession(newSession)
+    
+    // Cancella tutti i dati dal localStorage
+    localStorage.removeItem('timerData')
+    localStorage.removeItem('currentSession')
+  }
+
+
   return (
     <div className={styles.container}>
+      {/* Controlli sopra su mobile */}
+      <div className={styles.controlsContainer}>
+        <TimerControls 
+          isRunning={isRunning}
+          onToggle={toggleTimer}
+          onReset={resetTimers}
+          onResetAll={resetAllData}
+        />
+      </div>
+      
+      {/* Timer in colonna su mobile */}
       <div className={styles.timersContainer}>
         <TimerBox 
           label="LAVORO"
@@ -237,12 +297,6 @@ export default function TimerContainer() {
           onClick={activateOtherTimer}
         />
       </div>
-      
-      <TimerControls 
-        isRunning={isRunning}
-        onToggle={toggleTimer}
-        onReset={resetTimers}
-      />
       
       <TotalsDisplay 
         workTotal={formatTime(totalWorkTime)}
