@@ -1,0 +1,54 @@
+.timerBox {
+    flex: 1;
+    padding: 25px;
+    border-radius: var(--border-radius);
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .active {
+    background-color: var(--secondary-color);
+    color: white;
+    transform: translateY(-5px) scale(1.03);
+    box-shadow: 0 15px 30px rgba(13, 71, 161, 0.3);
+    border: 2px solid var(--primary-color);
+  }
+  
+  .inactive {
+    background-color: #e0e0e0;
+    color: #757575;
+    transform: translateY(3px);
+    box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .runningLight {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 8px;
+    background-color: rgba(255, 255, 255, 0.3);
+    animation: running-light 2s linear infinite;
+  }
+  
+  .label {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+  
+  .time {
+    font-size: 38px;
+    font-weight: 400;
+    font-family: 'Roboto Mono', monospace;
+    margin-top: 15px;
+  }
+  
+  .timeActive {
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  }

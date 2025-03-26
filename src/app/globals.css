@@ -1,0 +1,35 @@
+:root {
+  --primary-color: #0d47a1; /* Blu zaffiro scuro */
+  --secondary-color: #1976d2; /* Blu oceano */
+  --accent-color: #90caf9; /* Blu chiaro */
+  --background-color: #f5f5f5;
+  --card-color: #ffffff;
+  --text-color: #212121;
+  --border-radius: 16px;
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  font-family: 'Roboto', 'Segoe UI', sans-serif;
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+.main-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+@keyframes running-light {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}

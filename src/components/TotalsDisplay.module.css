@@ -1,0 +1,97 @@
+.container {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: rgba(13, 71, 161, 0.1);
+    border-radius: var(--border-radius);
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .title {
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 15px;
+    color: var(--primary-color);
+  }
+  
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+  
+  .item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    border-radius: 8px;
+    background-color: rgba(255, 255, 255, 0.7);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  }
+  
+  .sessions {
+    margin-top: 20px;
+    border-top: 1px solid rgba(13, 71, 161, 0.2);
+    padding-top: 15px;
+  }
+  
+  .sessionsTitle {
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 10px;
+    color: var(--primary-color);
+  }
+  
+  .sessionsList {
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  
+  .sessionItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 10px;
+    margin-bottom: 8px;
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+  
+  .currentSession {
+    background-color: rgba(25, 118, 210, 0.1);
+    border-left: 3px solid var(--secondary-color);
+  }
+  
+  .sessionTime {
+    font-size: 14px;
+    color: var(--primary-color);
+    font-weight: 500;
+  }
+  
+  .activeText {
+    color: #4caf50;
+    font-weight: 600;
+  }
+  
+  .sessionDetails {
+    display: flex;
+    gap: 10px;
+    font-size: 14px;
+    color: #666;
+  }
+  
+  .sessionDetails span {
+    padding: 2px 6px;
+    border-radius: 4px;
+    background-color: rgba(13, 71, 161, 0.1);
+  }
+  
+  .emptyMessage {
+    padding: 15px;
+    text-align: center;
+    color: #757575;
+    font-style: italic;
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 6px;
+  }
