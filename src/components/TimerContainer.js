@@ -7,6 +7,7 @@ import TotalsDisplay from './TotalsDisplay'
 import styles from './TimerContainer.module.css'
 
 export default function TimerContainer() {
+  // Stati per i tempi visualizzati
   const [workTime, setWorkTime] = useState(0)
   const [otherTime, setOtherTime] = useState(0)
   const [totalWorkTime, setTotalWorkTime] = useState(0)
@@ -16,9 +17,13 @@ export default function TimerContainer() {
   const [sessions, setSessions] = useState([])
   const [currentSession, setCurrentSession] = useState(null)
   
+  // Riferimenti per gestire i timer e il recupero dopo standby
   const timerInterval = useRef(null)
   const activeTimerRef = useRef('work')
   const sessionId = useRef(Date.now().toString())
+  const startTimeRef = useRef(null)
+  const lastUpdateTimeRef = useRef(null)
+  const visibilityChangeHandled = useRef(false)
 
   // Carica i dati dal localStorage all'avvio e crea una nuova sessione
   useEffect(() => {
@@ -63,7 +68,86 @@ export default function TimerContainer() {
     }
   }, [])
 
-  // Aggiorna il localStorage quando i totali o le sessioni cambiano
+  // Aggiungi gestione per visibilitychange e comportamento in background
+  useEffect(() => {
+    // Gestione dell'evento visibilitychange
+    const handleVisibilityChange = () => {
+      visibilityChangeHandled.current = true;
+      
+      if (document.hidden) {
+        // L'app passa in background
+        if (isRunning) {
+          // Salviamo il timestamp corrente
+          lastUpdateTimeRef.current = Date.now();
+          
+          // Fermiamo l'intervallo ma manteniamo lo stato running
+          clearInterval(timerInterval.current);
+        }
+      } else {
+        // L'app torna in primo piano
+        if (isRunning) {
+          // Calcoliamo quanto tempo è passato in background
+          const now = Date.now();
+          const elapsedSeconds = Math.floor((now - lastUpdateTimeRef.current) / 1000);
+          
+          if (elapsedSeconds > 0) {
+            // Aggiorniamo i timer
+            if (activeTimerRef.current === 'work') {
+              setWorkTime(prevTime => prevTime + elapsedSeconds);
+              setTotalWorkTime(prevTime => prevTime + elapsedSeconds);
+            } else {
+              setOtherTime(prevTime => prevTime + elapsedSeconds);
+              setTotalOtherTime(prevTime => prevTime + elapsedSeconds);
+            }
+          }
+          
+          // Riavvia l'intervallo
+          startTimer();
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    // Listener per rilevare lo standby o la perdita di focus
+    const checkInactivity = () => {
+      if (isRunning && !document.hidden && !visibilityChangeHandled.current) {
+        const now = Date.now();
+        const timeSinceLastUpdate = now - lastUpdateTimeRef.current;
+        
+        // Se sono passati più di 2 secondi dall'ultimo aggiornamento,
+        // presumiamo che il timer sia stato sospeso
+        if (lastUpdateTimeRef.current && timeSinceLastUpdate > 2000) {
+          const elapsedSeconds = Math.floor(timeSinceLastUpdate / 1000);
+          
+          if (elapsedSeconds > 0) {
+            // Aggiorniamo i timer
+            if (activeTimerRef.current === 'work') {
+              setWorkTime(prevTime => prevTime + elapsedSeconds);
+              setTotalWorkTime(prevTime => prevTime + elapsedSeconds);
+            } else {
+              setOtherTime(prevTime => prevTime + elapsedSeconds);
+              setTotalOtherTime(prevTime => prevTime + elapsedSeconds);
+            }
+          }
+        }
+        
+        lastUpdateTimeRef.current = now;
+      }
+      
+      visibilityChangeHandled.current = false;
+    };
+    
+    // Esegui il controllo ogni secondo per rilevare eventuali sospensioni
+    const inactivityInterval = setInterval(checkInactivity, 1000);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      clearInterval(inactivityInterval);
+    };
+  }, [isRunning]);
+
+  // Aggiorna il localStorage quando i totali cambiano
   useEffect(() => {
     if (typeof window !== 'undefined' && (totalWorkTime > 0 || totalOtherTime > 0)) {
       saveDataToStorage()
@@ -160,8 +244,7 @@ export default function TimerContainer() {
       clearInterval(timerInterval.current)
       timerInterval.current = null
       setIsRunning(false)
-      
-      // Non creiamo più una nuova sessione quando mettiamo in pausa
+      startTimeRef.current = null
     } else {
       startTimer()
     }
@@ -172,7 +255,14 @@ export default function TimerContainer() {
       clearInterval(timerInterval.current)
     }
     
+    // Salva il timestamp di inizio o aggiorna
+    startTimeRef.current = Date.now()
+    lastUpdateTimeRef.current = Date.now()
+    
     timerInterval.current = setInterval(() => {
+      const now = Date.now()
+      lastUpdateTimeRef.current = now
+      
       if (activeTimerRef.current === 'work') {
         setWorkTime(prev => prev + 1)
         setTotalWorkTime(prev => prev + 1)
@@ -218,22 +308,8 @@ export default function TimerContainer() {
     setOtherTime(0)
     setActiveTimer('work')
     activeTimerRef.current = 'work'
+    startTimeRef.current = null
   }
-
-  // Aggiungiamo il rilevamento del dispositivo mobile
-  const [isMobile, setIsMobile] = useState(false)
-  
-  useEffect(() => {
-    const checkIfMobile = () => {
-      setIsMobile(window.innerWidth <= 600)
-    }
-    
-    checkIfMobile()
-    window.addEventListener('resize', checkIfMobile)
-    
-    return () => window.removeEventListener('resize', checkIfMobile)
-  }, [])
-
 
   const resetAllData = () => {
     // Ferma il timer se è in esecuzione
@@ -251,6 +327,7 @@ export default function TimerContainer() {
     setTotalWorkTime(0)
     setTotalOtherTime(0)
     setSessions([])
+    startTimeRef.current = null
     
     // Crea una nuova sessione
     const newSessionId = Date.now().toString()
@@ -268,10 +345,8 @@ export default function TimerContainer() {
     localStorage.removeItem('currentSession')
   }
 
-
   return (
     <div className={styles.container}>
-      {/* Controlli sopra su mobile */}
       <div className={styles.controlsContainer}>
         <TimerControls 
           isRunning={isRunning}
@@ -281,7 +356,6 @@ export default function TimerContainer() {
         />
       </div>
       
-      {/* Timer in colonna su mobile */}
       <div className={styles.timersContainer}>
         <TimerBox 
           label="LAVORO"
